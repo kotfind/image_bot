@@ -3,6 +3,8 @@
 from datetime import datetime
 import telebot
 import re
+from genImage import genImage
+import os
 
 with open('token.txt', 'r') as f:
     token = "".join(f.readline().split())
@@ -26,6 +28,13 @@ def get(msg):
     else:
         day, month, year = map(int, res.groups())
         date = datetime(year, month, day)
-        bot.send_message(msg.chat.id, str(date))
+
+        with genImage(date) as file:
+            file.seek(0)
+            bot.send_photo(
+                msg.chat.id,
+                file,
+                date.strftime('%d.%m.%Y')
+            )
 
 bot.infinity_polling()
