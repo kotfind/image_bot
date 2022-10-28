@@ -2,7 +2,7 @@ from PIL import Image
 import tempfile
 import config
 import numpy as np
-from math import inf
+from math import inf, sin
 
 from Ray import Ray
 from Sphere import Sphere
@@ -23,13 +23,11 @@ lights = [
 
 maxDepth = 4
 
-background = Image.open('bg.jpg')
-
 def getBackgroundColor(d):
-    return np.array(background.getpixel((
-        ( 0.5 * d[0] + 0.5) * background.width,
-        (-0.5 * d[1] + 0.5) * background.height
-    )))
+    r = sin(d[0] * 10 + 0.2) + sin(d[1] * 5 + 0.5)
+    g = sin(d[0] * 6 + 0.3) + sin(d[1] * 2 + 0.7)
+    b = sin(d[0] * 3 + 0.2) + sin(d[1] * 10 + 0.1)
+    return abs(np.array([r, g, b])) * 100 + 55
 
 def reflect(I, N):
     return I - 2 * N * np.dot(N, I)
