@@ -26,16 +26,7 @@ lights = [
 def reflect(I, N):
     return I - 2 * N * np.dot(N, I)
 
-def getPixel(x, y):
-    '''
-        x and y in range (-1; 1)
-    '''
-
-    ray = Ray(
-        np.array([0, 0, 0]),
-        np.array([x, y, 1])
-    )
-
+def castRay(ray):
     # Intersection
     sceneDist = inf
     sphere = None
@@ -75,10 +66,15 @@ def genImage(date):
     wid, hei = config.size
     for x in range(wid):
         for y in range(hei):
-            pix[x, y] = tuple(map(int, getPixel(
-                2 * x / wid - 1,
-                1 - 2 * y / hei
-            )))
+            ray = Ray(
+                np.array([0, 0, 0]),
+                np.array([
+                    2 * x / wid - 1,
+                    1 - 2 * y / hei,
+                    1
+                ])
+            )
+            pix[x, y] = tuple(map(int, castRay(ray)))
 
     file = tempfile.TemporaryFile()
     img.save(file, 'JPEG')
