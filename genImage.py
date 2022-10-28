@@ -12,16 +12,19 @@ from Light import Light
 backgroundColor = (255, 255, 255)
 
 scene = [
-    Sphere(np.array([   5, -3, 10]),    3, Material(np.array([ 255,    0,    0]))),
-    Sphere(np.array([   1, -3,  5]),    1, Material(np.array([   0,  255,    0]))),
-    Sphere(np.array([  -1,  1,  8]),    1, Material(np.array([   0,    0,  255]))),
-    Sphere(np.array([  -3,  3,  2]),    2, Material(np.array([   0,  255,  255]))),
+    Sphere(np.array([   5, -3, 10]),    3, Material(np.array([0.6, 0.3]), np.array([ 255,    0,    0]), 50)),
+    Sphere(np.array([   1, -3,  5]),    1, Material(np.array([0.6, 0.3]), np.array([   0,  255,    0]), 50)),
+    Sphere(np.array([  -1,  1,  8]),    1, Material(np.array([0.9, 0.1]), np.array([   0,    0,  255]), 10)),
+    Sphere(np.array([  -3,  3,  2]),    2, Material(np.array([0.9, 0.1]), np.array([   0,  255,  255]), 10)),
 ]
 
 lights = [
     Light(np.array([    1,  -3, -2]),    1),
     Light(np.array([    0,  0,  1]),   0.3),
 ]
+
+def reflect(I, N):
+    return I - 2 * N * np.dot(N, I)
 
 def getPixel(x, y):
     '''
@@ -49,12 +52,17 @@ def getPixel(x, y):
 
     # Light
     diffuseLightIntensity = 0
+    specularLightIntensity = 0
+
     for light in lights:
         lightDir = light.pos - pt
         lightDir /= np.linalg.norm(lightDir)
         diffuseLightIntensity += light.intensity * max(0, abs(np.dot(norm, lightDir)))
 
-    return sphere.m.diffuseColor * diffuseLightIntensity
+        specularLightIntensity += max(0, np.dot(reflect(lightDir, norm), ray.d)) ** sphere.m.specularExponent * light.intensity
+
+    return sphere.m.diffuseColor * diffuseLightIntensity * sphere.m.albedo[0] + \
+        np.array([255] * 3) * specularLightIntensity * sphere.m.albedo[1]
 
 def genImage(date):
     '''
