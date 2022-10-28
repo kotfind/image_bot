@@ -1,5 +1,6 @@
 import numpy as np
 from math import sin
+from colorsys import hsv_to_rgb
 
 from Ray import Ray
 from Sphere import Sphere
@@ -17,14 +18,13 @@ def rand3(r1, r2, r3):
 
 def getBackgroundColor(seed, d):
     seed = rand(seed)
-    color = np.array([0.] * 3)
-    for i in range(3):
-        a = rand3(seed, i, 1) * 8 + 2
-        b = rand3(seed, i, 2) * 4
-        c = rand3(seed, i, 3) * 8 + 2
-        f = rand3(seed, i, 4) * 4
-        color[i] = sin(d[0] * a + b) + sin(d[1] * c + f)
-    return abs(color) * 100 + 55
+
+    a = rand2(seed, 1) * 8 + 2
+    b = rand2(seed, 2) * 4
+    c = rand2(seed, 3) * 8 + 2
+    f = rand2(seed, 4) * 4
+
+    return np.array(hsv_to_rgb(abs(sin(d[0] * a + b) + sin(d[1] * c + f)) / 2, 1, 1)) * 240
 
 def getSpheres(seed):
     seed = rand(seed)
@@ -34,7 +34,7 @@ def getSpheres(seed):
         pos = np.array([0.] * 3)
         pos[0] = (rand3(seed, i, 1) - 0.5) * 23
         pos[1] = (rand3(seed, i, 2) - 0.5) * 23
-        pos[2] = rand3(seed, i, 3) * 20 + 15
+        pos[2] = rand3(seed, i, 3) * 20 + 10
 
         radius = rand3(seed, i, 4) * 5 + 0.5
 
