@@ -15,8 +15,6 @@ lights = [
     Light(np.array([    0,  0,  1]),   0.3),
 ]
 
-maxDepth = 4
-
 def reflect(I, N):
     return I - 2 * N * np.dot(N, I)
 
@@ -29,7 +27,7 @@ def castRay(seed, ray, scene, depth = 0):
             sceneDist = t
             sphere = s
 
-    if depth > maxDepth or sphere is None:
+    if depth > config.maxDepth or sphere is None:
         return getBackgroundColor(seed, ray.d)
 
     pt = ray(sceneDist)
