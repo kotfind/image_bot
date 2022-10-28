@@ -2,19 +2,13 @@ from PIL import Image
 import tempfile
 import config
 import numpy as np
-from math import inf, sin
+from math import inf
 
 from Ray import Ray
 from Sphere import Sphere
 from Material import Material
 from Light import Light
-
-scene = [
-    Sphere(np.array([   5, -3, 10]),    3, Material(np.array([0.1, 0.2, 0.7]), np.array([ 255,    0,    0]), 50)),
-    Sphere(np.array([   1, -3,  5]),    1, Material(np.array([0.6, 0.3, 0.0]), np.array([   0,  255,    0]), 50)),
-    Sphere(np.array([  -1,  1,  8]),    1, Material(np.array([0.9, 0.1, 0.4]), np.array([   0,    0,  255]), 10)),
-    Sphere(np.array([  -3,  3,  2]),    2, Material(np.array([0.9, 0.1, 0.1]), np.array([   0,  255,  255]), 10)),
-]
+from getBySeed import getBackgroundColor, getSpheres
 
 lights = [
     Light(np.array([    1,  -3, -2]),    1),
@@ -23,16 +17,10 @@ lights = [
 
 maxDepth = 4
 
-def getBackgroundColor(d):
-    r = sin(d[0] * 10 + 0.2) + sin(d[1] * 5 + 0.5)
-    g = sin(d[0] * 6 + 0.3) + sin(d[1] * 2 + 0.7)
-    b = sin(d[0] * 3 + 0.2) + sin(d[1] * 10 + 0.1)
-    return abs(np.array([r, g, b])) * 100 + 55
-
 def reflect(I, N):
     return I - 2 * N * np.dot(N, I)
 
-def castRay(ray, depth = 0):
+def castRay(seed, ray, scene, depth = 0):
     # Intersection
     sceneDist = inf
     sphere = None
@@ -42,7 +30,7 @@ def castRay(ray, depth = 0):
             sphere = s
 
     if depth > maxDepth or sphere is None:
-        return getBackgroundColor(ray.d)
+        return getBackgroundColor(seed, ray.d)
 
     pt = ray(sceneDist)
     norm = sphere.norm(pt)
@@ -50,10 +38,12 @@ def castRay(ray, depth = 0):
     # Reflect
     reflectDir = reflect(ray.d, norm)
     reflectedColor = castRay(
+        seed,
         Ray(
             pt + norm * (1e-3 if np.dot(reflectDir, norm) > 0 else -1e-3),
             reflectDir
         ),
+        scene,
         depth + 1
     )
 
@@ -72,13 +62,15 @@ def castRay(ray, depth = 0):
         np.array([255] * 3) * specularLightIntensity * sphere.m.albedo[1] + \
         reflectedColor * sphere.m.albedo[2]
 
-def genImage(date):
+def genImage(seed):
     '''
         Returns file object of created image
     '''
 
     img = Image.new('RGB', config.size)
     pix = img.load()
+
+    scene = getSpheres(seed)
 
     wid, hei = config.size
     for x in range(wid):
@@ -91,7 +83,7 @@ def genImage(date):
                     1
                 ])
             )
-            pix[x, y] = tuple(map(int, castRay(ray)))
+            pix[x, y] = tuple(map(int, castRay(seed, ray, scene)))
 
     file = tempfile.TemporaryFile()
     img.save(file, 'JPEG')

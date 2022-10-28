@@ -29,7 +29,7 @@ def get(msg):
         day, month, year = map(int, res.groups())
         date = datetime(year, month, day)
 
-        with genImage(date) as file:
+        with genImage(int(date.timestamp)) as file:
             file.seek(0)
             bot.send_photo(
                 msg.chat.id,
