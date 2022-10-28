@@ -2,7 +2,7 @@ from PIL import Image
 import tempfile
 import config
 import numpy as np
-from math import sqrt
+from math import sqrt, inf
 
 class Ray:
     def __init__(s, o, d):
@@ -22,17 +22,17 @@ class Ray:
         d = b**2 - 4 * a * c
 
         if d < 0:
-            return None
+            return inf
         else:
             t1 = (-b - sqrt(d)) / (2 * a)
             t2 = (-b + sqrt(d)) / (2 * a)
 
             if t2 < 0:
-                return None
+                return inf
             elif t1 > 0:
-                return s(t1)
+                return t1
             else:
-                return s(t2) # XXX
+                return t2 # XXX
 
 class Sphere:
     def __init__(s, o, r):
@@ -43,24 +43,12 @@ class Sphere:
         n = p - s.o
         return n / np.linalg.norm(n)
 
-def scene(ray):
-    spheres = [
-        Sphere(np.array([5, 3, 10]), 3),
-        Sphere(np.array([1, 3, 5]), 1),
-        Sphere(np.array([-1, -1, 8]), 1),
-        Sphere(np.array([-3, -3, 2]), 2),
-    ]
-
-    intersections = [] # pair of point and normal
-
-    for sphere in spheres:
-        if (pt := ray.intersect(sphere)) is not None:
-            intersections.append((pt, sphere.norm(pt)))
-
-    if not intersections:
-        return None
-
-    return min(intersections, key=lambda tup: np.linalg.norm(tup[0] - ray.o))
+scene = [
+    Sphere(np.array([5, 3, 10]), 3),
+    Sphere(np.array([1, 3, 5]), 1),
+    Sphere(np.array([-1, -1, 8]), 1),
+    Sphere(np.array([-3, -3, 2]), 2),
+]
 
 def getPixel(x, y):
     '''
@@ -72,13 +60,17 @@ def getPixel(x, y):
         np.array([x, y, 1])
     )
 
-    tmp = scene(ray)
-    if tmp is None:
+    sphereDist = inf
+    sphere = None
+    for s in scene:
+        if (t := ray.intersect(s)) < sphereDist:
+            sphereDist = t
+            sphere = s
+
+    if sphere is None:
         return (255, 255, 255)
 
-    pt, norm = tmp
-
-    r = int(255 * abs(np.dot(ray.d, norm)))
+    r = int(255 * abs(np.dot(ray.d, sphere.norm(ray(sphereDist)))))
     return (r, 0, 0)
 
 def genImage(date):
