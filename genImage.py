@@ -9,8 +9,6 @@ from Sphere import Sphere
 from Material import Material
 from Light import Light
 
-backgroundColor = np.array([255, 255, 255])
-
 scene = [
     Sphere(np.array([   5, -3, 10]),    3, Material(np.array([0.1, 0.2, 0.7]), np.array([ 255,    0,    0]), 50)),
     Sphere(np.array([   1, -3,  5]),    1, Material(np.array([0.6, 0.3, 0.0]), np.array([   0,  255,    0]), 50)),
@@ -25,6 +23,14 @@ lights = [
 
 maxDepth = 4
 
+background = Image.open('bg.jpg')
+
+def getBackgroundColor(d):
+    return np.array(background.getpixel((
+        ( 0.5 * d[0] + 0.5) * background.width,
+        (-0.5 * d[1] + 0.5) * background.height
+    )))
+
 def reflect(I, N):
     return I - 2 * N * np.dot(N, I)
 
@@ -38,7 +44,7 @@ def castRay(ray, depth = 0):
             sphere = s
 
     if depth > maxDepth or sphere is None:
-        return backgroundColor
+        return getBackgroundColor(ray.d)
 
     pt = ray(sceneDist)
     norm = sphere.norm(pt)
