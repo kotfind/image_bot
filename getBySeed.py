@@ -19,12 +19,16 @@ def rand3(r1, r2, r3):
 def getBackgroundColor(seed, d):
     seed = rand(seed)
 
-    a = rand2(seed, 1) * 8 + 2
-    b = rand2(seed, 2) * 4
-    c = rand2(seed, 3) * 8 + 2
-    f = rand2(seed, 4) * 4
+    v = 0
+    for i in range(4):
+        a = rand3(seed, i, 1) * 8 + 2
+        b = rand3(seed, i, 2) * 4
+        c = rand3(seed, i, 3) * 8 + 2
+        f = rand3(seed, i, 4) * 4
+        v += sin(d[0] * a + b) + sin(d[1] * c + f)
+    v /= 2 * 4
 
-    return np.array(hsv_to_rgb(abs(sin(d[0] * a + b) + sin(d[1] * c + f)) / 2, 1, 1)) * 240
+    return np.array(hsv_to_rgb(abs(v), 0.9, 0.9)) * 240
 
 def getSpheres(seed):
     seed = rand(seed)
