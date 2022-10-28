@@ -9,13 +9,13 @@ from Sphere import Sphere
 from Material import Material
 from Light import Light
 
-backgroundColor = (255, 255, 255)
+backgroundColor = np.array([255, 255, 255])
 
 scene = [
-    Sphere(np.array([   5, -3, 10]),    3, Material(np.array([0.6, 0.3]), np.array([ 255,    0,    0]), 50)),
-    Sphere(np.array([   1, -3,  5]),    1, Material(np.array([0.6, 0.3]), np.array([   0,  255,    0]), 50)),
-    Sphere(np.array([  -1,  1,  8]),    1, Material(np.array([0.9, 0.1]), np.array([   0,    0,  255]), 10)),
-    Sphere(np.array([  -3,  3,  2]),    2, Material(np.array([0.9, 0.1]), np.array([   0,  255,  255]), 10)),
+    Sphere(np.array([   5, -3, 10]),    3, Material(np.array([0.1, 0.2, 0.7]), np.array([ 255,    0,    0]), 50)),
+    Sphere(np.array([   1, -3,  5]),    1, Material(np.array([0.6, 0.3, 0.0]), np.array([   0,  255,    0]), 50)),
+    Sphere(np.array([  -1,  1,  8]),    1, Material(np.array([0.9, 0.1, 0.4]), np.array([   0,    0,  255]), 10)),
+    Sphere(np.array([  -3,  3,  2]),    2, Material(np.array([0.9, 0.1, 0.1]), np.array([   0,  255,  255]), 10)),
 ]
 
 lights = [
@@ -23,10 +23,12 @@ lights = [
     Light(np.array([    0,  0,  1]),   0.3),
 ]
 
+maxDepth = 4
+
 def reflect(I, N):
     return I - 2 * N * np.dot(N, I)
 
-def castRay(ray):
+def castRay(ray, depth = 0):
     # Intersection
     sceneDist = inf
     sphere = None
@@ -35,11 +37,21 @@ def castRay(ray):
             sceneDist = t
             sphere = s
 
-    if sphere is None:
+    if depth > maxDepth or sphere is None:
         return backgroundColor
 
     pt = ray(sceneDist)
     norm = sphere.norm(pt)
+
+    # Reflect
+    reflectDir = reflect(ray.d, norm)
+    reflectedColor = castRay(
+        Ray(
+            pt + norm * (1e-3 if np.dot(reflectDir, norm) > 0 else -1e-3),
+            reflectDir
+        ),
+        depth + 1
+    )
 
     # Light
     diffuseLightIntensity = 0
@@ -53,7 +65,8 @@ def castRay(ray):
         specularLightIntensity += max(0, np.dot(reflect(lightDir, norm), ray.d)) ** sphere.m.specularExponent * light.intensity
 
     return sphere.m.diffuseColor * diffuseLightIntensity * sphere.m.albedo[0] + \
-        np.array([255] * 3) * specularLightIntensity * sphere.m.albedo[1]
+        np.array([255] * 3) * specularLightIntensity * sphere.m.albedo[1] + \
+        reflectedColor * sphere.m.albedo[2]
 
 def genImage(date):
     '''
