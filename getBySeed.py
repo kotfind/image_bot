@@ -48,10 +48,10 @@ def getSpheres(seed):
 
         else: # not mirror
             albedo[0] = rand3(seed, i, 6) * 0.5 + 0.5 # diffuse
-            albedo[1] = rand3(seed, i, 7) * 0.2 + 0.1 # specular
+            albedo[1] = rand3(seed, i, 7) * 0.2 + 0.0 # specular
             albedo[2] = 0 # reflected
 
-            specExp = rand3(seed, i, 12) * 10
+            specExp = rand3(seed, i, 12) * 10 + 1
 
         color = np.array([0.] * 3)
         for j in range(3):
