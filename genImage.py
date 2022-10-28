@@ -3,14 +3,18 @@ import tempfile
 import config
 import numpy as np
 from math import inf
+
 from Ray import Ray
 from Sphere import Sphere
+from Material import Material
+
+backgroundColor = (255, 255, 255)
 
 scene = [
-    Sphere(np.array([5, 3, 10]), 3),
-    Sphere(np.array([1, 3, 5]), 1),
-    Sphere(np.array([-1, -1, 8]), 1),
-    Sphere(np.array([-3, -3, 2]), 2),
+    Sphere(np.array([   5,  3, 10]),    3, Material(( 255,    0,    0))),
+    Sphere(np.array([   1,  3,  5]),    1, Material((   0,  255,    0))),
+    Sphere(np.array([  -1, -1,  8]),    1, Material((   0,    0,  255))),
+    Sphere(np.array([  -3, -3,  2]),    2, Material((   0,  255,  255))),
 ]
 
 def getPixel(x, y):
@@ -31,10 +35,9 @@ def getPixel(x, y):
             sphere = s
 
     if sphere is None:
-        return (255, 255, 255)
+        return backgroundColor
 
-    r = int(255 * abs(np.dot(ray.d, sphere.norm(ray(sphereDist)))))
-    return (r, 0, 0)
+    return sphere.m.diffuseColor
 
 def genImage(date):
     '''
