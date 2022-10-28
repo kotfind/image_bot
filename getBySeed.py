@@ -16,10 +16,15 @@ def rand3(r1, r2, r3):
     return sin(r1 * 532843 + r2 * 128303 + r3 * 230495 + 184207) % 1
 
 def getBackgroundColor(seed, d):
-    r = sin(d[0] * 10 + 0.2) + sin(d[1] * 5 + 0.5)
-    g = sin(d[0] * 6 + 0.3) + sin(d[1] * 2 + 0.7)
-    b = sin(d[0] * 3 + 0.2) + sin(d[1] * 10 + 0.1)
-    return abs(np.array([r, g, b])) * 100 + 55
+    seed = rand(seed)
+    color = np.array([0.] * 3)
+    for i in range(3):
+        a = rand3(seed, i, 1) * 8 + 2
+        b = rand3(seed, i, 2) * 4
+        c = rand3(seed, i, 3) * 8 + 2
+        f = rand3(seed, i, 4) * 4
+        color[i] = sin(d[0] * a + b) + sin(d[1] * c + f)
+    return abs(color) * 100 + 55
 
 def getSpheres(seed):
     seed = rand(seed)
