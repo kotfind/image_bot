@@ -29,6 +29,8 @@ def get(msg):
         day, month, year = map(int, res.groups())
         date = datetime(year, month, day)
 
+        bot.send_message(msg.chat.id, 'You image is being generated.\nPlease wait about two minutes.')
+
         with genImage(date.timestamp()) as file:
             file.seek(0)
             bot.send_photo(
