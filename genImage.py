@@ -2,7 +2,7 @@ from PIL import Image
 import tempfile
 import config
 import numpy as np
-from math import inf
+from math import inf, sqrt
 
 from Ray import Ray
 from Sphere import Sphere
@@ -81,7 +81,10 @@ def genImage(seed):
                     1
                 ])
             )
-            pix[x, y] = tuple(map(int, castRay(seed, ray, scene)))
+            pix[x, y] = tuple(map(
+                lambda c: int(255 * sqrt(c / 255)),
+                castRay(seed, ray, scene)
+            ))
 
     file = tempfile.TemporaryFile()
     img.save(file, 'JPEG')

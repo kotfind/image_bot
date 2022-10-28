@@ -28,7 +28,7 @@ def getBackgroundColor(seed, d):
         v += sin(d[0] * a + b) + sin(d[1] * c + f)
     v /= 2 * 4
 
-    return np.array(hsv_to_rgb(abs(v), 0.9, 0.9)) * 240
+    return np.array(hsv_to_rgb(abs(v), 1, 1)) * 255
 
 def getSpheres(seed):
     seed = rand(seed)
