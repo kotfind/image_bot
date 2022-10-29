@@ -3,11 +3,10 @@
 from datetime import datetime
 import telebot
 import re
-from genImage import genImage
 import os
 
-with open('token.txt', 'r') as f:
-    token = "".join(f.readline().split())
+from genImage import genImage
+from myToken import token
 
 bot = telebot.TeleBot(token)
 
